@@ -8,6 +8,7 @@ import OAuth from "@/components/OAuth";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { ReactNativeModal } from "react-native-modal";
+import { fetchApi } from "@/lib/fetch";
 
 const SignUp = () => {
   const [form, setForm] = useState({
@@ -56,7 +57,14 @@ const SignUp = () => {
       });
 
       if (completeSignUp.status === "complete") {
-        // TODO: create a database user
+        await fetchApi("/(api)/user", {
+          method: "POST",
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        });
 
         await setActive({ session: completeSignUp.createdSessionId });
         setVerification({ ...verification, state: "success" });
